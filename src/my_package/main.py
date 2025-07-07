@@ -1,58 +1,15 @@
 from dotenv import load_dotenv
 import os
 from pathlib import Path
+from tools import available_tools, calculate, generate_random_number
 from openai import OpenAI
 from openai.types.chat import ChatCompletionSystemMessageParam, ChatCompletionUserMessageParam, ChatCompletionAssistantMessageParam, ChatCompletionMessageParam
 import json
 
 messages: list = [
-    ChatCompletionSystemMessageParam(role="system", content="You are a helpful assistant that can answer questions, perform calculations, tell jokes, and create to do lists.")
+    ChatCompletionSystemMessageParam(role="system", content="You are a helpful assistant that can answer questions, perform calculations, generate random numbers between a maximum and minimum value, and create to do lists.")
 ]
 
-def calculate(operation, x, y):
-    """Perform a mathematical operation."""
-    if operation == "add":
-        return x + y
-    elif operation == "subtract":
-        return x - y
-    elif operation == "multiply":
-        return x * y
-    elif operation == "divide":
-        if y == 0:
-            return "Error: Division by zero"
-        return x / y
-    else:
-        return f"Error: Unknown operation '{operation}'"
-
-# Define available tools as a LIST of tool specifications
-available_tools = [
-    {
-        "type": "function",
-        "function": {
-            "name": "calculate",
-            "description": "Perform a mathematical operation on two numbers",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "operation": {
-                        "type": "string",
-                        "enum": ["add", "subtract", "multiply", "divide"],
-                        "description": "The mathematical operation to perform"
-                    },
-                    "x": {
-                        "type": "number",
-                        "description": "The first number"
-                    },
-                    "y": {
-                        "type": "number",
-                        "description": "The second number"
-                    }
-                },
-                "required": ["operation", "x", "y"]
-            }
-        }
-    }
-]
 
 def main():
     load_dotenv()
@@ -88,10 +45,9 @@ def main():
                     # Call the appropriate function
                     result = None
                     if function_name == "calculate":
-                        try:
-                            result = calculate(arguments["operation"], arguments["x"], arguments["y"])
-                        except Exception as e:
-                            result = f"Error in calculation: {str(e)}"
+                        result = calculate(arguments["operation"], arguments["x"], arguments["y"])
+                    elif function_name == "generate_random_number":
+                        result = generate_random_number(arguments["min"], arguments["max"])
 
                     if result is not None:
                         messages.append({
@@ -100,7 +56,7 @@ def main():
                             "name": function_name,
                             "content": str(result)
                         })
-                        print(f"Function result: {result}")
+                        
 
                 # Get the final response
                 final_response = client.chat.completions.create(
@@ -117,7 +73,10 @@ def main():
         print("Assistant:", chat("Hello! Can you tell me about yourself?"))
         print("\nAssistant:", chat("What can you help me with?"))
         print("\nAssistant:", chat("Calculate 123 + 456"))  # Test the calculator
-        print("\nAssistant:", chat("Tell me a short joke about programming."))
+        response = chat("Generate a random number between 1 and 100")
+        if response:
+            print("\nAssistant:", response)
+
 
         # Print conversation history
         print("\nFull conversation history:")
