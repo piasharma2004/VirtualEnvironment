@@ -20,7 +20,9 @@ def generate_random_number(min, max):
     """Generate a random number between min and max."""
     return random.randint(min, max)
 
-
+def create_to_do_list(items):
+    """Create a to do list."""
+    return "\n".join(f"- {item}" for item in items)
 # Define available tools as a LIST of tool specifications
 available_tools = [
     {
@@ -66,6 +68,24 @@ available_tools = [
                     }
                 },
                 "required": ["min", "max"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "create_to_do_list",
+            "description": "Create a to do list",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                        "description": "The list of items to include in the to do list"
+                    }
+                },
+                "required": ["items"]
             }
         }
     }

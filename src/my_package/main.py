@@ -1,7 +1,7 @@
 from dotenv import load_dotenv
 import os
 from pathlib import Path
-from tools import available_tools, calculate, generate_random_number
+from tools import available_tools, calculate, generate_random_number, create_to_do_list
 from openai import OpenAI
 from openai.types.chat import ChatCompletionSystemMessageParam, ChatCompletionUserMessageParam, ChatCompletionAssistantMessageParam, ChatCompletionMessageParam
 import json
@@ -35,7 +35,7 @@ def main():
 
             # Check if the model wants to call any functions
             if assistant_message.tool_calls:
-                print("Processing function calls...")
+
                 for tool_call in assistant_message.tool_calls:
                     function_name = tool_call.function.name
                     arguments = json.loads(tool_call.function.arguments)
@@ -48,6 +48,8 @@ def main():
                         result = calculate(arguments["operation"], arguments["x"], arguments["y"])
                     elif function_name == "generate_random_number":
                         result = generate_random_number(arguments["min"], arguments["max"])
+                    elif function_name == "create_to_do_list":
+                        result = create_to_do_list(arguments["items"])
 
                     if result is not None:
                         messages.append({
@@ -73,6 +75,7 @@ def main():
         print("Assistant:", chat("Hello! Can you tell me about yourself?"))
         print("\nAssistant:", chat("What can you help me with?"))
         print("\nAssistant:", chat("Calculate 123 + 456"))  # Test the calculator
+        print("\nAssistant:", chat("Create a to do list of 5 items"))
         response = chat("Generate a random number between 1 and 100")
         if response:
             print("\nAssistant:", response)
