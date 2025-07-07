@@ -1,6 +1,5 @@
 import random
 
-
 def calculate(operation, x, y):
     """Perform a mathematical operation."""
     if operation == "add":
