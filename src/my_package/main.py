@@ -6,12 +6,38 @@ from tools import available_tools, calculate, generate_random_number, create_to_
 from openai import OpenAI
 from openai.types.chat import ChatCompletionSystemMessageParam, ChatCompletionUserMessageParam, ChatCompletionAssistantMessageParam, ChatCompletionMessageParam
 import json
+from rich.panel import Panel
+from rich.text import Text
+from rich.style import Style
 
 messages: list = [
     ChatCompletionSystemMessageParam(role="system", content="You are a helpful assistant that can answer questions, perform calculations, generate random numbers between a maximum and minimum value, and create to do lists.")
 ]
 
 console = Console()
+
+def format_welcome() -> None:
+    """Format and print the welcome message with light pink theme."""
+    welcome_text = Text.from_markup(
+        """[bold #ffc0cb]🤖 CLI Chatbot[/bold #ffc0cb]
+
+[bold italic]Connected to OpenAI with tool support![/bold italic]
+[italic]Type your message or 'quit' to exit.[/italic]
+[bold italic]You can ask to calculate, generate a random number, or create a to do list.[/bold italic]
+"""
+    )
+
+    panel = Panel(
+        welcome_text,
+        title="[bold #ffc0cb]Welcome[/bold #ffc0cb]",
+        border_style="#ffc0cb",
+        padding=(1, 2)
+    )
+    console.print(panel)
+
+
+def format_error(error: str) -> None:
+             console.print(f"[bold red]Error:[/bold red] {error}")
 
 def main():
     load_dotenv()
@@ -72,14 +98,12 @@ def main():
         # The model chose to respond directly
                 return assistant_message.content
 
-        
+
 # Run a simple chat loop
-        print("Welcome to the Tool-Calling Chatbot! Type 'exit' to quit.")
-        print("You can ask about the weather or request calculations.")
+        format_welcome()
 
         while True:
             user_input = input("\nYou: ")
-
 
             if user_input.lower() in ["exit", "quit", "bye"]:
                 print("Goodbye!")
@@ -89,7 +113,8 @@ def main():
             print(f"\nAssistant: {response}")
     
     except Exception as e:
-        print(f"An error occurred: {e}")
+# Usage
+        format_error("An error occurred")
 
 if __name__ == "__main__":
     main()
