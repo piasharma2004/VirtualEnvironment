@@ -1,5 +1,6 @@
 from dotenv import load_dotenv
 import os
+from rich.console import Console
 from pathlib import Path
 from tools import available_tools, calculate, generate_random_number, create_to_do_list
 from openai import OpenAI
@@ -10,6 +11,7 @@ messages: list = [
     ChatCompletionSystemMessageParam(role="system", content="You are a helpful assistant that can answer questions, perform calculations, generate random numbers between a maximum and minimum value, and create to do lists.")
 ]
 
+console = Console()
 
 def main():
     load_dotenv()
@@ -40,8 +42,6 @@ def main():
                     function_name = tool_call.function.name
                     arguments = json.loads(tool_call.function.arguments)
 
-                    print(f"Function call: {function_name}({arguments})")
-
                     # Call the appropriate function
                     result = None
                     if function_name == "calculate":
@@ -66,30 +66,30 @@ def main():
                     messages=messages
                 )
                 final_message = final_response.choices[0].message
-                messages.append(final_message.model_dump())
+                final_message_content = final_message.content
                 return final_message.content
             else:
+        # The model chose to respond directly
                 return assistant_message.content
 
-        # Start the conversation
-        print("Assistant:", chat("Hello! Can you tell me about yourself?"))
-        print("\nAssistant:", chat("What can you help me with?"))
-        print("\nAssistant:", chat("Calculate 123 + 456"))  # Test the calculator
-        print("\nAssistant:", chat("Create a to do list of 5 items"))
-        response = chat("Generate a random number between 1 and 100")
-        if response:
-            print("\nAssistant:", response)
+        
+# Run a simple chat loop
+        print("Welcome to the Tool-Calling Chatbot! Type 'exit' to quit.")
+        print("You can ask about the weather or request calculations.")
+
+        while True:
+            user_input = input("\nYou: ")
 
 
-        # Print conversation history
-        print("\nFull conversation history:")
-        for message in messages:
-            role = message["role"].capitalize()
-            content = message["content"]
-            print(f"{role}: {content}\n")
+            if user_input.lower() in ["exit", "quit", "bye"]:
+                print("Goodbye!")
+                break
 
+            response = chat(user_input)
+            print(f"\nAssistant: {response}")
+    
     except Exception as e:
-        print(f"\nError making API request: {e}")
+        print(f"An error occurred: {e}")
 
 if __name__ == "__main__":
     main()

@@ -83,8 +83,8 @@ available_tools = [
                         "type": "array",
                         "items": {"type": "string"},
                         "description": "The list of items to include in the to do list"
-                    }
-                },
+            }
+    },
                 "required": ["items"]
             }
         }
