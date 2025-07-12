@@ -9,7 +9,10 @@ wheels/
 # Virtual environments
 .venv
 
-# Environment variables
+# Environment files
 .env
+.env.*
 .env.local
 .env.*.local
+
+Thumbs.db
